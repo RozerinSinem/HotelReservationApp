@@ -1,0 +1,80 @@
+﻿@model HotelReservationApp.ViewModels.SearchHotelViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Hotel</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Nereye?</h2>
+        <form asp-controller="SearchHotel" asp-action="Search" method="post" class="needs-validation" novalidate>
+            <div class="form-row">
+                <div class="col-md-3 mb-3">
+                    <label for="location">Varış Noktası:</label>
+                    <input type="text" class="form-control" id="location" name="location" required>
+                    <div class="invalid-feedback">Please enter a location.</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="startDate">Başlangıç Tarihi:</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                    <div class="invalid-feedback">Please select a start date.</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="endDate">Bitiş Tarihi:</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                    <div class="invalid-feedback">Please select an end date.</div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="guests">Misafir Sayısı:</label>
+                    <input type="number" class="form-control" id="guests" name="guests" min="1" required>
+                    <div class="invalid-feedback">Please enter the number of guests.</div>
+                </div>
+                <div class="col-md-1 mb-3 align-self-end">
+                    <button type="submit" class="btn btn-primary btn-block">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            @if (Model.Hotels != null && Model.Hotels.Count > 0)
+            {
+                @foreach (var hotel in Model.Hotels)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="@hotel.PictureUrl" class="card-img-top" alt="Hotel Image">
+                            <div class="card-body">
+                                <h5 class="card-title">@hotel.HotelName</h5>
+                                <!-- Display rooms for the current dates -->
+                                @foreach (var room in hotel.Rooms.Where(r => r.StartDate <= Model.StartDate && r.EndDate >= Model.EndDate))
+                                {
+                                    <p class="card-text">
+                                        <strong>Oda tipi:</strong> @(room.RoomType == "Single" ? "Normal" : "Suite")<br>
+
+                                        <strong>Fiyat:</strong> @(room.Price * Model.Guests) <!-- Adjust price based on the number of guests -->
+                                    </p>
+                                    
+                                }
+                                <a href="@Url.Action("Details", "SearchHotel", new { id = hotel.HotelId, startDate = Model.StartDate.ToString("yyyy-MM-dd"), endDate = Model.EndDate.ToString("yyyy-MM-dd"), guests = Model.Guests })" class="btn btn-primary">Detayları Göster</a>
+                                
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Otel mevcut değil.</p>
+            }
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

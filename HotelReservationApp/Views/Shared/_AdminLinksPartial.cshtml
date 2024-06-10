@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HotelReservationApp.Areas.Identity.Data
+
+
+@inject UserManager<HotelReservationAppUser> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var isAdmin = user?.IsAdmin == true;
+}
+
+@if (isAdmin)
+{
+
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="HotelAdmin" asp-action="Listing">Listing</a>
+    </li>
+}

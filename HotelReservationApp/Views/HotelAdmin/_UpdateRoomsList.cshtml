@@ -1,0 +1,153 @@
+﻿@model HotelReservationApp.Models.Hotel
+
+<h2>Rooms for @Model.HotelName</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Room Type</th>
+            <th>Room Number</th>
+            <th>Price</th>
+            <th>Availability</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model.Rooms)
+        {
+            <tr>
+                <td>@room.StartDate.ToString("yyyy-MM-dd")</td>
+                <td>@room.EndDate.ToString("yyyy-MM-dd")</td>
+                <td>@room.RoomType</td>
+                <td>@room.RoomNumber</td>
+                <td>$@room.Price</td>
+                <td>@(room.IsAvailable ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-primary btn-sm update-room-btn"
+                            data-toggle="modal"
+                            data-target="#updateRoomModal"
+                            data-room-id="@room.RoomId"
+                            data-start-date="@room.StartDate.ToString("yyyy-MM-dd")"
+                            data-end-date="@room.EndDate.ToString("yyyy-MM-dd")"
+                            data-room-type="@room.RoomType"
+                            data-room-number="@room.RoomNumber"
+                            data-price="@room.Price"
+                            data-is-available="@room.IsAvailable">
+                        Update
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Update Room Modal -->
+<div class="modal fade" id="updateRoomModal" tabindex="-1" role="dialog" aria-labelledby="updateRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateRoomModalLabel">Update Room</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form to update room details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.update-room-btn').click(function () {
+                var roomId = $(this).data('room-id');
+                var startDate = $(this).data('start-date');
+                var endDate = $(this).data('end-date');
+                var roomType = $(this).data('room-type');
+                var roomNumber = $(this).data('room-number');
+                var price = $(this).data('price');
+                var isAvailable = $(this).data('is-available');
+
+
+
+                // Populate modal with room data
+                $('#updateRoomModal .modal-body').html(`
+                            <form>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" value="${startDate}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" class="form-control" id="endDate" value="${endDate}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roomType">Room Type</label>
+                                    <input type="text" class="form-control" id="roomType" value="${roomType}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roomNumber">Room Number</label>
+                                    <input type="text" class="form-control" id="roomNumber" value="${roomNumber}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="price">Price</label>
+                                    <input type="text" class="form-control" id="price" value="${price}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="isAvailable">Availability</label>
+                                    <select class="form-control" id="isAvailable">
+                                        <option value="true" ${isAvailable ? 'selected' : ''}>Yes</option>
+                                        <option value="false" ${!isAvailable ? 'selected' : ''}>No</option>
+                                    </select>
+                                </div>
+                            </form>
+                                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveRoomBtn">Save</button>
+                    </div>
+                        `);
+
+                // Show the modal
+                $('#updateRoomModal').modal('show');
+
+                $('#saveRoomBtn').click(function () {
+                  
+                    var formData = {
+                        RoomId: roomId,
+                        StartDate: $('#startDate').val(),
+                        EndDate: $('#endDate').val(),
+                        RoomType: $('#roomType').val(),
+                        RoomNumber: $('#roomNumber').val(),
+                        Price: $('#price').val(),
+                        IsAvailable: $('#isAvailable').val() === 'true' ? true : false
+                    };
+
+                    // Send the updated room information to the server for updating
+                    $.ajax({
+                        url: '/HotelAdmin/UpdateRoom',
+                        type: 'POST',
+                        data: formData,
+                        success: function (response) {
+                            console.log(response);
+                            // Optionally, handle success response
+                            // Close the modal and refresh the page or update UI as needed
+                            $('#updateRoomModal').modal('hide');
+                            // Reload the page or update UI
+                            location.reload(); // Example: Reload the page
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error updating room:', error);
+                            // Optionally, display an error message to the user
+                        }
+                    });
+                });
+            });
+        });
+
+
+    </script>
+}

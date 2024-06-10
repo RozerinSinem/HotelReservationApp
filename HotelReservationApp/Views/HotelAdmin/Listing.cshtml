@@ -1,0 +1,59 @@
+﻿@model List<HotelReservationApp.Models.Hotel>
+
+<h2>Hotels</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hotel in Model)
+        {
+            <tr>
+                <td>@hotel.HotelName</td>
+                <td>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addRoomModal" data-hotel-id="@hotel.HotelId" data-hotel-name="@hotel.HotelName">Add Room</button>
+                    <a class="btn btn-success" asp-action="UpdateRooms" asp-route-hotelId="@hotel.HotelId">Update Rooms</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="addRoomModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="addRoomContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#addRoomModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var hotelId = button.data('hotel-id');
+                var hotelName = button.data('hotel-name');
+
+                var modal = $(this);
+                $.ajax({
+                    url: '@Url.Action("AddRoomForm", "HotelAdmin")' + '?hotelId=' + hotelId,
+                    type: 'GET',
+                    success: function (data) {
+                        $('#addRoomContent').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("Error: " + error);
+                    }
+                });
+            });
+        });
+    </script>
+}
